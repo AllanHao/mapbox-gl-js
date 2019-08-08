@@ -84,12 +84,7 @@ function isWorker() {
 /* global self, WorkerGlobalScope */
 export const getReferrer = isWorker() ?
     () => self.worker && self.worker.referrer :
-    () => {
-        const origin = window.location.origin;
-        if (origin && origin !== 'null' && origin !== 'file://') {
-            return origin + window.location.pathname;
-        }
-    };
+    () => (location.protocol === 'blob:' ? parent : window).location.href;
 
 function isFileURL(url) {
     return ((location.protocol === 'blob:' ? parent : window).location.protocol === 'file:' && !/^\w+:/.test(url)) || /^file:/.test(url);
