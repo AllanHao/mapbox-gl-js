@@ -57,6 +57,9 @@ class SourceCache extends Evented {
     _isIdRenderable: (id: number, symbolLayer?: boolean) => boolean;
     used: boolean;
     _state: SourceFeatureState;
+    _lastZ: number;
+    _todoTiles: Array<Tile>;
+    _handleMoveend: boolean;
 
     static maxUnderzooming: number;
     static maxOverzooming: number;
