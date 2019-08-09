@@ -404,6 +404,8 @@ class Map extends Camera {
 
         this.addControl(new LogoControl(), options.logoPosition);
 
+        this._lazyLoading = options.lazyLoading;
+
         this.on('style.load', () => {
             if (this.transform.unmodified) {
                 this.jumpTo((this.style.stylesheet: any));

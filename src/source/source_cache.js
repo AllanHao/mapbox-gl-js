@@ -660,7 +660,21 @@ class SourceCache extends Evented {
         const cached = Boolean(tile);
         if (!cached) {
             tile = new Tile(tileID, this._source.tileSize * tileID.overscaleFactor());
-            this._loadTile(tile, this._tileLoaded.bind(this, tile, tileID.key, tile.state));
+            if (this.map._lazyLoading) {
+                this._lastZ = tile.tileID.overscaledZ;
+                this._todoTiles = this._todoTiles || [];
+                if (!this.map.isZooming() && !this.map.isMoving()) {
+                    this._loadTile(tile, this._tileLoaded.bind(this, tile, tileID.key, tile.state));
+                } else {
+                    this._todoTiles.push(tile);
+                }
+                if (!this._handleMoveend) {
+                    this.map.on('moveend', this._loadTodoTiles.bind(this));
+                    this._handleMoveend = true;
+                }
+            } else {
+                this._loadTile(tile, this._tileLoaded.bind(this, tile, tileID.key, tile.state));
+            }
         }
 
         // Impossible, but silence flow.
@@ -671,6 +685,18 @@ class SourceCache extends Evented {
         if (!cached) this._source.fire(new Event('dataloading', {tile, coord: tile.tileID, dataType: 'source'}));
 
         return tile;
+    }
+
+    _loadTodoTiles() {
+        if (!this._lastZ || !this._todoTiles || this._todoTiles.length < 1) {
+            return;
+        }
+        const _todos = this._todoTiles.filter(todo => todo.tileID.overscaledZ === this._lastZ);
+        this._todoTiles = [];
+        for (let index = 0; index < _todos.length; index++) {
+            const tile = _todos[index];
+            this._loadTile(tile, this._tileLoaded.bind(this, tile, tile.tileID.key, tile.state));
+        }
     }
 
     _setTileReloadTimer(id: string | number, tile: Tile) {
