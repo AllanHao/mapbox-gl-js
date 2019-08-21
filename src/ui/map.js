@@ -273,6 +273,7 @@ class Map extends Camera {
     _mapId: number;
     _localIdeographFontFamily: string;
     _requestManager: RequestManager;
+    _lazyLoading: boolean;
 
     /**
      * The map's {@link ScrollZoomHandler}, which implements zooming in and out with a scroll wheel or trackpad.
